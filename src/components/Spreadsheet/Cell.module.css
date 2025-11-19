@@ -1,0 +1,40 @@
+.cell,
+.headerCell,
+.rowIndexCell {
+  width: 150px;
+  min-height: 32px;
+  padding: 8px;
+  border: 1px solid #d0d0d0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.cell {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.headerCell {
+  background-color: #f0f0f0;
+  font-weight: 600;
+  color: #000000;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.rowIndexCell {
+  background-color: #f8f8f8;
+  font-weight: 500;
+  color: #666666;
+  text-align: center;
+  justify-content: center;
+  width: 60px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
