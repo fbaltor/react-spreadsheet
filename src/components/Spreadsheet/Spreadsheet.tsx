@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Grid from './Grid';
 import styles from './Spreadsheet.module.css';
-import { getMockData } from '../../utils/mockApi';
+import { getMockData, getBigMockData, getVeryBigMockData } from '../../utils/mockApi';
 import { normalizeApiData } from '../../utils/dataTransform';
 import type { NormalizedData } from '../../utils/dataTransform';
 
@@ -11,7 +11,7 @@ const Spreadsheet: React.FC = () => {
 
   useEffect(() => {
     // Load data from mock API
-    const apiData = getMockData();
+    const apiData = getVeryBigMockData();
     const normalized = normalizeApiData(apiData);
     setData(normalized);
   }, []);
