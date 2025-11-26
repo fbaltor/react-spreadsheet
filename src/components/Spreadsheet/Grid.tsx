@@ -1,15 +1,23 @@
 import Cell from './Cell';
 import styles from './Grid.module.css';
 import type { Column, Row } from '../../utils/dataTransform';
+import type { CellPosition } from './Spreadsheet';
 
 interface GridProps {
   columns: Column[];
   rows: Row[];
+  selectedCell: CellPosition | null;
+  onCellSelect: (rowIndex: number, columnKey: string) => void;
 }
 
-const Grid: React.FC<GridProps> = ({ columns, rows }) => {
+const Grid: React.FC<GridProps> = ({ columns, rows, selectedCell, onCellSelect }) => {
   // Calculate grid template columns: 60px for row index + 150px for each data column
   const gridTemplateColumns = `60px repeat(${columns.length}, 150px)`;
+
+  const isCellSelected = (rowIndex: number, columnKey: string): boolean => {
+    if (!selectedCell) return false;
+    return selectedCell.rowIndex === rowIndex && selectedCell.columnKey === columnKey;
+  }
 
   return (
     <div
@@ -43,6 +51,8 @@ const Grid: React.FC<GridProps> = ({ columns, rows }) => {
             <Cell
               key={`cell-${row.rowIndex}-${column.key}`}
               value={row.cells[column.key]}
+              isSelected={isCellSelected(row.rowIndex, column.key)}
+              onSelect={() => onCellSelect(row.rowIndex, column.key)}
             />
           ))}
         </>
