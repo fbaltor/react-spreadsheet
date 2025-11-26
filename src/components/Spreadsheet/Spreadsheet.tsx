@@ -14,6 +14,7 @@ export interface CellPosition {
 const Spreadsheet: React.FC = () => {
   const [data, setData] = useState<NormalizedData | null>(null);
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
+  const [editingCell, setEditingCell] = useState<CellPosition | null>(null);
 
   useEffect(() => {
     // Load data from mock API
@@ -23,7 +24,44 @@ const Spreadsheet: React.FC = () => {
   }, []);
 
   const handleCellSelect = (rowIndex: number, columnKey: string) => {
+    if (editingCell) {
+      setEditingCell(null)
+    }
     setSelectedCell({ rowIndex, columnKey })
+  }
+
+  const handleStartEdit = (rowIndex: number, columnKey: string) => {
+    setSelectedCell({ rowIndex, columnKey })
+    setEditingCell({ rowIndex, columnKey })
+  }
+
+  const handleFinishEdit = (rowIndex: number, columnKey: string, newValue: any) => {
+    if (!data) return;
+
+    const newRows = data.rows.map(row => {
+      if (row.rowIndex === rowIndex) {
+        return {
+          ...row,
+          cells: {
+            ...row.cells,
+            [columnKey]: newValue
+          }
+        }
+      }
+
+      return row;
+    })
+
+    setData({
+      ...data,
+      rows: newRows
+    })
+
+    setEditingCell(null)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingCell(null)
   }
 
   if (!data) {
@@ -36,7 +74,11 @@ const Spreadsheet: React.FC = () => {
         columns={data.columns}
         rows={data.rows}
         selectedCell={selectedCell}
+        editingCell={editingCell}
         onCellSelect={handleCellSelect}
+        onStartEdit={handleStartEdit}
+        onFinishEdit={handleFinishEdit}
+        onCancelEdit={handleCancelEdit}
       />
     </div>
   );

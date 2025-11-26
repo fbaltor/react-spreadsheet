@@ -30,6 +30,24 @@
   outline-offset: -2px;
 }
 
+.cell.editing {
+  padding: 0;
+  background-color: #fff9c4;
+  outline: 2px solid #f9a825;
+  outline-offset: -2px;
+}
+
+.cellInput {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #ffffff;
+}
+
 .headerCell {
   background-color: #f0f0f0;
   font-weight: 600;
