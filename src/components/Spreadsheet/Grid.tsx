@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import Cell from './Cell';
 import styles from './Grid.module.css';
 import type { Column, Row } from '../../utils/dataTransform';
@@ -57,7 +59,7 @@ const Grid: React.FC<GridProps> = ({
 
       {/* Data rows */}
       {rows.map((row) => (
-        <>
+        <Fragment key={row.rowIndex}>
           {/* Row index cell */}
           <Cell
             key={`row-index-${row.rowIndex}`}
@@ -78,7 +80,7 @@ const Grid: React.FC<GridProps> = ({
               onCancelEdit={onCancelEdit}
             />
           ))}
-        </>
+        </Fragment>
       ))}
     </div>
   );
