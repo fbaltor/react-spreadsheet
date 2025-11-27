@@ -1,33 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
-import Grid from './Grid';
-import styles from './Spreadsheet.module.css';
-import { getVeryBigMockData } from '../../utils/mockApi';
-import { normalizeApiData } from '../../utils/dataTransform';
-import type { NormalizedData } from '../../utils/dataTransform';
+import Grid from './Grid'
+import styles from './Spreadsheet.module.css'
+import { getVeryBigMockData } from '../../utils/mockApi'
+import { normalizeApiData } from '../../utils/dataTransform'
+import type { NormalizedData } from '../../utils/dataTransform'
 
 export interface CellPosition {
-  rowIndex: number;
-  columnKey: string;
+  rowIndex: number
+  columnKey: string
 }
 
 export interface CellFormat {
-  bold?: boolean;
+  bold?: boolean
   italic?: boolean
-  align?: 'left' | 'center' | 'right';
+  align?: 'left' | 'center' | 'right'
 }
 
 const Spreadsheet: React.FC = () => {
-  const [data, setData] = useState<NormalizedData | null>(null);
-  const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
-  const [editingCell, setEditingCell] = useState<CellPosition | null>(null);
+  const [data, setData] = useState<NormalizedData | null>(null)
+  const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null)
+  const [editingCell, setEditingCell] = useState<CellPosition | null>(null)
 
   useEffect(() => {
     // Load data from mock API
-    const apiData = getVeryBigMockData();
-    const normalized = normalizeApiData(apiData);
-    setData(normalized);
-  }, []);
+    const apiData = getVeryBigMockData()
+    const normalized = normalizeApiData(apiData)
+    setData(normalized)
+  }, [])
 
   const handleCellSelect = (rowIndex: number, columnKey: string) => {
     if (editingCell) {
@@ -42,7 +42,7 @@ const Spreadsheet: React.FC = () => {
   }
 
   const handleFinishEdit = (rowIndex: number, columnKey: string, newValue: any) => {
-    if (!data) return;
+    if (!data) return
 
     const newRows = data.rows.map(row => {
       if (row.rowIndex === rowIndex) {
@@ -55,7 +55,7 @@ const Spreadsheet: React.FC = () => {
         }
       }
 
-      return row;
+      return row
     })
 
     setData({
@@ -71,7 +71,7 @@ const Spreadsheet: React.FC = () => {
   }
 
   if (!data) {
-    return <div className={styles.loading}>Loading...</div>;
+    return <div className={styles.loading}>Loading...</div>
   }
 
   return (
@@ -87,7 +87,7 @@ const Spreadsheet: React.FC = () => {
         onCancelEdit={handleCancelEdit}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Spreadsheet;
+export default Spreadsheet

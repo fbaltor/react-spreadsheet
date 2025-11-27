@@ -1,34 +1,34 @@
 // Types for our internal data structure
 export interface Column {
-  name: string;
-  key: string;
+  name: string
+  key: string
 }
 
 export interface Row {
-  rowIndex: number;
-  cells: { [columnKey: string]: any };
+  rowIndex: number
+  cells: { [columnKey: string]: any }
 }
 
 export interface NormalizedData {
-  columns: Column[];
-  rows: Row[];
+  columns: Column[]
+  rows: Row[]
 }
 
 // API response types
 interface ApiColumn {
-  name: string;
-  key: string;
+  name: string
+  key: string
 }
 
 interface ApiItem {
-  [key: string]: any;
+  [key: string]: any
 }
 
 export interface ApiResponse {
   Values: {
-    columns: ApiColumn[];
-    items: ApiItem[];
-  };
+    columns: ApiColumn[]
+    items: ApiItem[]
+  }
 }
 
 /**
@@ -38,16 +38,16 @@ export interface ApiResponse {
  * Output: Normalized format with columns and rows (each row has rowIndex and cells)
  */
 export const normalizeApiData = (apiResponse: ApiResponse): NormalizedData => {
-  const { columns, items } = apiResponse.Values;
+  const { columns, items } = apiResponse.Values
 
   // Transform items array into rows array with rowIndex
   const rows: Row[] = items.map((item, index) => ({
     rowIndex: index,
     cells: item
-  }));
+  }))
 
   return {
     columns,
     rows
-  };
-};
+  }
+}

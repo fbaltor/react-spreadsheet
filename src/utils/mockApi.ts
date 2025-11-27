@@ -288,8 +288,8 @@ export const getBigMockData = () => {
         }
       ]
     }
-  };
-};
+  }
+}
 
 // Mock API that returns the sample data
 export const getVeryBigMockData = () => {
@@ -740,5 +740,5 @@ export const getVeryBigMockData = () => {
         }
       ]
     }
-  };
-};
+  }
+}

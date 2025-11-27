@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 
-import { normalizeApiData, } from "./dataTransform";
+import { normalizeApiData, } from "./dataTransform"
 import type { ApiResponse } from "./dataTransform"
 
 
@@ -15,7 +15,7 @@ const mockApiCall = async (): Promise<ApiResponse> => ({
       { product: 'B', revenue: 200 }
     ]
   }
-});
+})
 
 test('normalizeApiData transforms API response into normalized structure', async () => {
   const apiResponse = await mockApiCall()

@@ -1,12 +1,12 @@
-import styles from './Toolbar.module.css';
-import type { CellFormat } from './Spreadsheet';
+import styles from './Toolbar.module.css'
+import type { CellFormat } from './Spreadsheet'
 
 interface ToolbarProps {
-  currentFormat: CellFormat | null;
+  currentFormat: CellFormat | null
   disabled: boolean
   onToggleBold: () => void
-  onToggleItalic: () => void;
-  onSetAlign: (align: 'left' | 'center' | 'right') => void;
+  onToggleItalic: () => void
+  onSetAlign: (align: 'left' | 'center' | 'right') => void
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -69,7 +69,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Toolbar;
+export default Toolbar

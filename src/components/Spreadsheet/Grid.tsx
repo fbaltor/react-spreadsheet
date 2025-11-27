@@ -1,19 +1,19 @@
-import { Fragment } from 'react';
+import { Fragment } from 'react'
 
-import Cell from './Cell';
-import styles from './Grid.module.css';
-import type { Column, Row } from '../../utils/dataTransform';
-import type { CellPosition } from './Spreadsheet';
+import Cell from './Cell'
+import styles from './Grid.module.css'
+import type { Column, Row } from '../../utils/dataTransform'
+import type { CellPosition } from './Spreadsheet'
 
 interface GridProps {
-  columns: Column[];
-  rows: Row[];
-  selectedCell: CellPosition | null;
-  editingCell: CellPosition | null;
-  onCellSelect: (rowIndex: number, columnKey: string) => void;
-  onStartEdit: (rowIndex: number, columnKey: string) => void;
-  onFinishEdit: (rowIndex: number, columnKey: string, newValue: any) => void;
-  onCancelEdit: () => void;
+  columns: Column[]
+  rows: Row[]
+  selectedCell: CellPosition | null
+  editingCell: CellPosition | null
+  onCellSelect: (rowIndex: number, columnKey: string) => void
+  onStartEdit: (rowIndex: number, columnKey: string) => void
+  onFinishEdit: (rowIndex: number, columnKey: string, newValue: any) => void
+  onCancelEdit: () => void
 }
 
 const Grid: React.FC<GridProps> = ({
@@ -27,15 +27,15 @@ const Grid: React.FC<GridProps> = ({
   onCancelEdit
 }) => {
   // Calculate grid template columns: 60px for row index + 150px for each data column
-  const gridTemplateColumns = `60px repeat(${columns.length}, 150px)`;
+  const gridTemplateColumns = `60px repeat(${columns.length}, 150px)`
 
   const isCellSelected = (rowIndex: number, columnKey: string): boolean => {
-    if (!selectedCell) return false;
-    return selectedCell.rowIndex === rowIndex && selectedCell.columnKey === columnKey;
+    if (!selectedCell) return false
+    return selectedCell.rowIndex === rowIndex && selectedCell.columnKey === columnKey
   }
 
   const isCellEditing = (rowIndex: number, columnKey: string): boolean => {
-    if (!editingCell) return false;
+    if (!editingCell) return false
 
     return editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey
   }
@@ -83,7 +83,7 @@ const Grid: React.FC<GridProps> = ({
         </Fragment>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default Grid;
+export default Grid

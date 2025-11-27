@@ -4,15 +4,15 @@ import styles from './Cell.module.css'
 
 
 interface CellProps {
-  value: any;
-  isHeader?: boolean;
-  isRowIndex?: boolean;
-  isSelected?: boolean;
-  isEditing?: boolean;
-  onSelect?: () => void;
-  onStartEdit?: () => void;
-  onFinishEdit?: (newValue: any) => void;
-  onCancelEdit?: () => void;
+  value: any
+  isHeader?: boolean
+  isRowIndex?: boolean
+  isSelected?: boolean
+  isEditing?: boolean
+  onSelect?: () => void
+  onStartEdit?: () => void
+  onFinishEdit?: (newValue: any) => void
+  onCancelEdit?: () => void
 }
 
 const Cell: React.FC<CellProps> = ({
@@ -26,27 +26,27 @@ const Cell: React.FC<CellProps> = ({
   onFinishEdit,
   onCancelEdit,
 }) => {
-  const [editValue, setEditValue] = useState<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [editValue, setEditValue] = useState<string>('')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isEditing) {
       setEditValue(value !== null && value !== undefined ? String(value) : '')
-      setTimeout(() => inputRef.current?.focus(), 0);
+      setTimeout(() => inputRef.current?.focus(), 0)
     }
   }, [isEditing, value])
 
   const getClassName = (): string => {
-    if (isHeader) return styles.headerCell;
-    if (isRowIndex) return styles.rowIndexCell;
+    if (isHeader) return styles.headerCell
+    if (isRowIndex) return styles.rowIndexCell
 
     if (isEditing) return `${styles.cell} ${styles.editing}`
     if (isSelected) return `${styles.cell} ${styles.selected}`
 
-    return styles.cell;
+    return styles.cell
   }
 
-  const displayValue = value !== null && value !== undefined ? String(value) : '';
+  const displayValue = value !== null && value !== undefined ? String(value) : ''
 
   const handleClick = () => {
     if (!isHeader && !isRowIndex && onSelect) {
@@ -56,7 +56,7 @@ const Cell: React.FC<CellProps> = ({
 
   const handleDoubleClick = () => {
     if (!isHeader && !isRowIndex && onStartEdit) {
-      onStartEdit();
+      onStartEdit()
     }
   }
 
@@ -67,10 +67,10 @@ const Cell: React.FC<CellProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      onFinishEdit?.(editValue);
+      onFinishEdit?.(editValue)
     } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancelEdit?.();
+      e.preventDefault()
+      onCancelEdit?.()
     }
   }
 
@@ -105,4 +105,4 @@ const Cell: React.FC<CellProps> = ({
   )
 }
 
-export default Cell;
+export default Cell
