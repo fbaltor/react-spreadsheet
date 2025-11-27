@@ -3,13 +3,21 @@ import { Fragment } from 'react'
 import Cell from './Cell'
 import styles from './Grid.module.css'
 import type { Column, Row } from '../../utils/dataTransform'
-import type { CellPosition } from './Spreadsheet'
+import type { CellPosition, CellFormat } from './Spreadsheet'
+
+type CellMeta = {
+  [rowIndex: number]: {
+    [columnKey: string]: CellFormat
+  }
+};
+
 
 interface GridProps {
   columns: Column[]
   rows: Row[]
   selectedCell: CellPosition | null
   editingCell: CellPosition | null
+  cellMeta: CellMeta
   onCellSelect: (rowIndex: number, columnKey: string) => void
   onStartEdit: (rowIndex: number, columnKey: string) => void
   onFinishEdit: (rowIndex: number, columnKey: string, newValue: any) => void
@@ -20,8 +28,9 @@ const Grid: React.FC<GridProps> = ({
   columns,
   rows,
   selectedCell,
-  onCellSelect,
   editingCell,
+  cellMeta,
+  onCellSelect,
   onStartEdit,
   onFinishEdit,
   onCancelEdit
@@ -38,6 +47,10 @@ const Grid: React.FC<GridProps> = ({
     if (!editingCell) return false
 
     return editingCell.rowIndex === rowIndex && editingCell.columnKey === columnKey
+  }
+
+  const getCellFormat = (rowIndex: number, columnKey: string): CellFormat | undefined => {
+    return cellMeta[rowIndex]?.[columnKey]
   }
 
   return (
@@ -74,6 +87,7 @@ const Grid: React.FC<GridProps> = ({
               value={row.cells[column.key]}
               isSelected={isCellSelected(row.rowIndex, column.key)}
               isEditing={isCellEditing(row.rowIndex, column.key)}
+              format={getCellFormat(row.rowIndex, column.key)}
               onSelect={() => onCellSelect(row.rowIndex, column.key)}
               onStartEdit={() => onStartEdit(row.rowIndex, column.key)}
               onFinishEdit={(newValue) => onFinishEdit(row.rowIndex, column.key, newValue)}

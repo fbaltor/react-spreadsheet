@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 
 import styles from './Cell.module.css'
 
+import type { CellFormat } from './Spreadsheet'
+
 
 interface CellProps {
   value: any
@@ -9,6 +11,7 @@ interface CellProps {
   isRowIndex?: boolean
   isSelected?: boolean
   isEditing?: boolean
+  format?: CellFormat
   onSelect?: () => void
   onStartEdit?: () => void
   onFinishEdit?: (newValue: any) => void
@@ -21,6 +24,7 @@ const Cell: React.FC<CellProps> = ({
   isRowIndex = false,
   isSelected = false,
   isEditing = false,
+  format,
   onSelect,
   onStartEdit,
   onFinishEdit,
@@ -36,14 +40,39 @@ const Cell: React.FC<CellProps> = ({
     }
   }, [isEditing, value])
 
+  const getFormatClasses = (): string => {
+    if (!format) return ''
+
+    const classes: string[] = []
+    if (format.bold) classes.push(styles.bold)
+    if (format.italic) classes.push(styles.italic)
+    if (format.align === 'left') classes.push(styles.alignLeft)
+    if (format.align === 'center') classes.push(styles.alignCenter)
+    if (format.align === 'right') classes.push(styles.alignRight)
+
+    return classes.join(' ')
+  }
+
   const getClassName = (): string => {
     if (isHeader) return styles.headerCell
     if (isRowIndex) return styles.rowIndexCell
 
-    if (isEditing) return `${styles.cell} ${styles.editing}`
-    if (isSelected) return `${styles.cell} ${styles.selected}`
+    const formatClasses = getFormatClasses()
 
-    return styles.cell
+    if (isEditing) return `${styles.cell} ${styles.editing} ${formatClasses}`
+    if (isSelected) return `${styles.cell} ${styles.selected} ${formatClasses}`
+
+    return `${styles.cell} ${formatClasses}`
+  }
+
+  const getInputClasses = (): string => {
+    const classes = [styles.cellInput]
+    if (format?.bold) classes.push(styles.bold)
+    if (format?.italic) classes.push(styles.italic)
+    if (format?.align === 'left') classes.push(styles.alignLeft)
+    if (format?.align === 'center') classes.push(styles.alignCenter)
+    if (format?.align === 'right') classes.push(styles.alignRight)
+    return classes.join(' ')
   }
 
   const displayValue = value !== null && value !== undefined ? String(value) : ''
@@ -84,7 +113,7 @@ const Cell: React.FC<CellProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className={styles.cellInput}
+          className={getInputClasses()}
           value={editValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
