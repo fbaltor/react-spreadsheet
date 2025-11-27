@@ -30,6 +30,10 @@
   outline-offset: -2px;
 }
 
+.cell.inRange {
+  background-color: #e3f2fd;
+}
+
 .cell.editing {
   padding: 0;
   background-color: #fff9c4;

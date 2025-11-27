@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import Grid from './Grid'
 import Toolbar from './Toolbar'
@@ -10,6 +10,11 @@ import type { NormalizedData } from '../../utils/dataTransform'
 export interface CellPosition {
   rowIndex: number
   columnKey: string
+}
+
+export interface CellRange {
+  start: CellPosition
+  end: CellPosition
 }
 
 export interface CellFormat {
@@ -27,6 +32,8 @@ type CellMeta = {
 const Spreadsheet: React.FC = () => {
   const [data, setData] = useState<NormalizedData | null>(null)
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null)
+  const [selectedRange, setSelectedRange] = useState<CellRange | null>(null)
+  const [isSelecting, setIsSelecting] = useState(false)
   const [editingCell, setEditingCell] = useState<CellPosition | null>(null)
   const [cellMeta, setCellMeta] = useState<CellMeta>({})
 
@@ -36,6 +43,46 @@ const Spreadsheet: React.FC = () => {
     const normalized = normalizeApiData(apiData)
     setData(normalized)
   }, [])
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      if (isSelecting) {
+        setIsSelecting(false)
+      }
+    }
+
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => window.removeEventListener('mouseup', handleMouseUp)
+  }, [isSelecting])
+
+  const getCellsInRange = useCallback((range: CellRange | null): CellPosition[] => {
+    if (!range || !data) return []
+
+    const { start, end } = range
+    const cells: CellPosition[] = []
+
+    // Get column indices
+    const columnKeys = data.columns.map(c => c.key)
+    const startColIndex = columnKeys.indexOf(start.columnKey)
+    const endColIndex = columnKeys.indexOf(end.columnKey)
+    const minColIndex = Math.min(startColIndex, endColIndex)
+    const maxColIndex = Math.max(startColIndex, endColIndex)
+
+    // Get row indices
+    const minRowIndex = Math.min(start.rowIndex, end.rowIndex)
+    const maxRowIndex = Math.max(start.rowIndex, end.rowIndex)
+
+    for (let rowIndex = minRowIndex; rowIndex <= maxRowIndex; rowIndex++) {
+      for (let colIndex = minColIndex; colIndex <= maxColIndex; colIndex++) {
+        cells.push({
+          rowIndex,
+          columnKey: columnKeys[colIndex]
+        })
+      }
+    }
+
+    return cells
+  }, [data])
   
   const getCellFormat = (rowIndex: number, columnKey: string): CellFormat | undefined => {
     return cellMeta[rowIndex]?.[columnKey]
@@ -50,19 +97,55 @@ const Spreadsheet: React.FC = () => {
   const updateSelectedCellFormat = (updates: Partial<CellFormat>) => {
     if (!selectedCell) return
 
-    const { rowIndex, columnKey } = selectedCell
-    const currentFormat = getCellFormat(rowIndex, columnKey) || {}
+    const cellsToUpdate = selectedRange 
+      ? getCellsInRange(selectedRange)
+      : [selectedCell]
 
-    setCellMeta(prev => ({
-      ...prev,
-      [rowIndex]: {
-        ...prev[rowIndex],
-        [columnKey]: {
-          ...currentFormat,
-          ...updates
+    setCellMeta(prev => {
+      const newMeta = { ...prev }
+      
+      for (const cell of cellsToUpdate) {
+        const { rowIndex, columnKey } = cell
+        const currentFormat = getCellFormat(rowIndex, columnKey) || {}
+        
+        if (!newMeta[rowIndex]) {
+          newMeta[rowIndex] = {}
+        }
+        
+        newMeta[rowIndex] = {
+          ...newMeta[rowIndex],
+          [columnKey]: {
+            ...currentFormat,
+            ...updates
+          }
         }
       }
-    }))
+      
+      return newMeta
+    })
+  }
+
+  const handleCellMouseDown = (rowIndex: number, columnKey: string) => {
+    if (editingCell) {
+      setEditingCell(null)
+    }
+    
+    setSelectedCell({ rowIndex, columnKey })
+    setSelectedRange({
+      start: { rowIndex, columnKey },
+      end: { rowIndex, columnKey }
+    })
+    setIsSelecting(true)
+  }
+
+  // Extend selection on mouse enter while dragging
+  const handleCellMouseEnter = (rowIndex: number, columnKey: string) => {
+    if (isSelecting && selectedRange) {
+      setSelectedRange(prev => prev ? {
+        ...prev,
+        end: { rowIndex, columnKey }
+      } : null)
+    }
   }
 
   const handleCellSelect = (rowIndex: number, columnKey: string) => {
@@ -70,10 +153,14 @@ const Spreadsheet: React.FC = () => {
       setEditingCell(null)
     }
     setSelectedCell({ rowIndex, columnKey })
+    // Clear range on single click
+    setSelectedRange(null)
   }
+
 
   const handleStartEdit = (rowIndex: number, columnKey: string) => {
     setSelectedCell({ rowIndex, columnKey })
+    setSelectedRange(null) // Clear range when editing
     setEditingCell({ rowIndex, columnKey })
   }
 
@@ -101,6 +188,7 @@ const Spreadsheet: React.FC = () => {
 
     setEditingCell(null)
   }
+
 
   const handleCancelEdit = () => {
     setEditingCell(null)
@@ -134,17 +222,22 @@ const Spreadsheet: React.FC = () => {
         onToggleItalic={handleToggleItalic}
         onSetAlign={handleSetAlign}
       />
+      <div className={styles.gridContainer}>
       <Grid
-        columns={data.columns}
-        rows={data.rows}
-        selectedCell={selectedCell}
-        editingCell={editingCell}
-        cellMeta={cellMeta}
-        onCellSelect={handleCellSelect}
-        onStartEdit={handleStartEdit}
-        onFinishEdit={handleFinishEdit}
-        onCancelEdit={handleCancelEdit}
+          columns={data.columns}
+          rows={data.rows}
+          selectedCell={selectedCell}
+          selectedRange={selectedRange}
+          editingCell={editingCell}
+          cellMeta={cellMeta}
+          onCellSelect={handleCellSelect}
+          onCellMouseDown={handleCellMouseDown}
+          onCellMouseEnter={handleCellMouseEnter}
+          onStartEdit={handleStartEdit}
+          onFinishEdit={handleFinishEdit}
+          onCancelEdit={handleCancelEdit}
       />
+      </div>
     </div>
   )
 }

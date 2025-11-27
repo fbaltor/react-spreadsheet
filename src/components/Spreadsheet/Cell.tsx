@@ -10,12 +10,15 @@ interface CellProps {
   isHeader?: boolean
   isRowIndex?: boolean
   isSelected?: boolean
+  isInRange?: boolean
   isEditing?: boolean
   format?: CellFormat
   onSelect?: () => void
   onStartEdit?: () => void
   onFinishEdit?: (newValue: any) => void
   onCancelEdit?: () => void
+  onMouseDown?: () => void
+  onMouseEnter?: () => void
 }
 
 const Cell: React.FC<CellProps> = ({
@@ -23,12 +26,15 @@ const Cell: React.FC<CellProps> = ({
   isHeader = false,
   isRowIndex = false,
   isSelected = false,
+  isInRange = false,
   isEditing = false,
   format,
   onSelect,
   onStartEdit,
   onFinishEdit,
   onCancelEdit,
+  onMouseDown,
+  onMouseEnter
 }) => {
   const [editValue, setEditValue] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -61,6 +67,7 @@ const Cell: React.FC<CellProps> = ({
 
     if (isEditing) return `${styles.cell} ${styles.editing} ${formatClasses}`
     if (isSelected) return `${styles.cell} ${styles.selected} ${formatClasses}`
+    if (isInRange) return `${styles.cell} ${styles.inRange} ${formatClasses}`
 
     return `${styles.cell} ${formatClasses}`
   }
@@ -86,6 +93,18 @@ const Cell: React.FC<CellProps> = ({
   const handleDoubleClick = () => {
     if (!isHeader && !isRowIndex && onStartEdit) {
       onStartEdit()
+    }
+  }
+
+  const handleMouseDown = () => {
+    if (!isHeader  && !isRowIndex && onMouseDown) {
+      onMouseDown()
+    }
+  }
+
+  const handleMouseEnter = () => {
+    if (!isHeader && !isRowIndex && onMouseEnter) {
+      onMouseEnter()
     }
   }
 
@@ -128,6 +147,8 @@ const Cell: React.FC<CellProps> = ({
       className={getClassName()}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
+      onMouseDown={handleMouseDown}
+      onMouseEnter={handleMouseEnter}
     >
       {displayValue}
     </div>
