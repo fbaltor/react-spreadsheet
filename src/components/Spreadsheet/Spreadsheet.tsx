@@ -11,6 +11,12 @@ export interface CellPosition {
   columnKey: string;
 }
 
+export interface CellFormat {
+  bold?: boolean;
+  italic?: boolean
+  align?: 'left' | 'center' | 'right';
+}
+
 const Spreadsheet: React.FC = () => {
   const [data, setData] = useState<NormalizedData | null>(null);
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
