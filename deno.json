@@ -1,1 +1,6 @@
-{}
+{
+  "deploy": {
+    "org": "fbaltor",
+    "app": "spreadsheet"
+  }
+}
