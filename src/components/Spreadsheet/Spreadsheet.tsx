@@ -3,9 +3,8 @@ import { useEffect, useState, useCallback } from 'react'
 import Grid from './Grid'
 import Toolbar from './Toolbar'
 import styles from './Spreadsheet.module.css'
-import { getVeryBigMockData } from '../../utils/mockApi'
 import { normalizeApiData } from '../../utils/dataTransform'
-import type { NormalizedData } from '../../utils/dataTransform'
+import type { NormalizedData, ApiResponse } from '../../utils/dataTransform'
 
 export interface CellPosition {
   rowIndex: number
@@ -38,10 +37,18 @@ const Spreadsheet: React.FC = () => {
   const [cellMeta, setCellMeta] = useState<CellMeta>({})
 
   useEffect(() => {
-    // Load data from mock API
-    const apiData = getVeryBigMockData()
-    const normalized = normalizeApiData(apiData)
-    setData(normalized)
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/data')
+        const apiData: ApiResponse = await response.json()
+        const normalized = normalizeApiData(apiData)
+        setData(normalized)
+      } catch (error) {
+        console.error('Failed to fetch data: ', error)
+      }
+    }
+
+    fetchData()
   }, [])
 
   useEffect(() => {
