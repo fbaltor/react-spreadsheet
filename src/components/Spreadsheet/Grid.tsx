@@ -57,7 +57,7 @@ const Grid: React.FC<GridProps> = ({
 
   const isCellInRange = useCallback((rowIndex: number, columnKey: string): boolean => {
     if (!selectedRange) return false
-    
+
     // Don't mark the primary selected cell as "in range"
     if (selectedCell && 
         selectedCell.rowIndex === rowIndex && 

@@ -17,7 +17,7 @@
   border-radius: 4px;
   background-color: #ffffff;
   cursor: pointer;
-  min-width: 160px;
+  min-width: 280px;
 }
 
 .select:hover:not(:disabled) {

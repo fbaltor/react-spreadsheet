@@ -39,17 +39,17 @@ const FilePicker: React.FC<FilePickerProps> = ({
             <option value="" disabled>Select a file...</option>
             {files.map(file => (
               <option key={file.filename} value={file.filename}>
-                {file.filename}
+                {file.filename} ({file.rowCount} rows, {file.size})
               </option>
             ))}
           </>
         )}
       </select>
-      
+
       {selectedFileInfo && (
         <div className={styles.metadata}>
           <span className={styles.metaItem}>{selectedFileInfo.rowCount} rows</span>
-          <span className={styles.metaSeparator}>•</span>
+          <span className={styles.metaSeparator}>-</span>
           <span className={styles.metaItem}>{selectedFileInfo.size}</span>
         </div>
       )}
