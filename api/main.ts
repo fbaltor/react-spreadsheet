@@ -4,7 +4,7 @@ import process from 'node:process'
 import express from 'express'
 import cors from 'cors'
 
-import data from './data/data.json' with { type: 'json' }
+import data from './data/data_big.json' with { type: 'json' }
 
 
 const app = express()
