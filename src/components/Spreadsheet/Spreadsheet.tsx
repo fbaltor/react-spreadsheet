@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react'
 
 import Grid from './Grid'
 import Toolbar from './Toolbar'
+import FilePicker from './Filepicker'
+import type { FileInfo } from './Filepicker.tsx'
 import styles from './Spreadsheet.module.css'
 import { normalizeApiData } from '../../utils/dataTransform'
 import type { NormalizedData, ApiResponse } from '../../utils/dataTransform'
@@ -36,10 +38,46 @@ const Spreadsheet: React.FC = () => {
   const [editingCell, setEditingCell] = useState<CellPosition | null>(null)
   const [cellMeta, setCellMeta] = useState<CellMeta>({})
 
+
+  const [files, setFiles] = useState<FileInfo[]>([])
+  const [filesLoading, setFilesLoading] = useState(true)
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+
+  const handleSelectFile = (filename: string) => {
+    setSelectedFile(filename)
+    console.log('Selected file:', filename)
+  }
+
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFiles = async () => {
       try {
-        const response = await fetch('/api/data')
+        const response = await fetch('/api/files')
+        const data: FileInfo[] = await response.json()
+        setFiles(data)
+      } catch (error) {
+        console.error('Failed to fetch files info: ', error)
+      } finally {
+        setFilesLoading(false)
+      }
+    }
+
+    fetchFiles()
+  }, [])
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setData(null)
+      return
+    }
+
+    const fetchData = async () => {
+      setData(null)
+      try {
+        const response = await fetch(`/api/${selectedFile}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status}`)
+        }
         const apiData: ApiResponse = await response.json()
         const normalized = normalizeApiData(apiData)
         setData(normalized)
@@ -49,7 +87,7 @@ const Spreadsheet: React.FC = () => {
     }
 
     fetchData()
-  }, [])
+  }, [selectedFile])
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -90,7 +128,7 @@ const Spreadsheet: React.FC = () => {
 
     return cells
   }, [data])
-  
+
   const getCellFormat = (rowIndex: number, columnKey: string): CellFormat | undefined => {
     return cellMeta[rowIndex]?.[columnKey]
   }
@@ -110,15 +148,15 @@ const Spreadsheet: React.FC = () => {
 
     setCellMeta(prev => {
       const newMeta = { ...prev }
-      
+
       for (const cell of cellsToUpdate) {
         const { rowIndex, columnKey } = cell
         const currentFormat = getCellFormat(rowIndex, columnKey) || {}
-        
+
         if (!newMeta[rowIndex]) {
           newMeta[rowIndex] = {}
         }
-        
+
         newMeta[rowIndex] = {
           ...newMeta[rowIndex],
           [columnKey]: {
@@ -127,7 +165,7 @@ const Spreadsheet: React.FC = () => {
           }
         }
       }
-      
+
       return newMeta
     })
   }
@@ -136,7 +174,7 @@ const Spreadsheet: React.FC = () => {
     if (editingCell) {
       setEditingCell(null)
     }
-    
+
     setSelectedCell({ rowIndex, columnKey })
     setSelectedRange({
       start: { rowIndex, columnKey },
@@ -216,34 +254,52 @@ const Spreadsheet: React.FC = () => {
     updateSelectedCellFormat({ align })
   }
 
-  if (!data) {
-    return <div className={styles.loading}>Loading...</div>
+  const renderGridContent = () => {
+    if (!selectedFile) {
+      return <div className={styles.message}>Select a file to view</div>
+    }
+    
+    if (!data) {
+      return <div className={styles.message}>Loading...</div>
+    }
+
+    return (
+      <Grid
+        columns={data.columns}
+        rows={data.rows}
+        selectedCell={selectedCell}
+        selectedRange={selectedRange}
+        editingCell={editingCell}
+        cellMeta={cellMeta}
+        onCellSelect={handleCellSelect}
+        onCellMouseDown={handleCellMouseDown}
+        onCellMouseEnter={handleCellMouseEnter}
+        onStartEdit={handleStartEdit}
+        onFinishEdit={handleFinishEdit}
+        onCancelEdit={handleCancelEdit}
+      />
+    )
   }
 
   return (
     <div className={styles.container}>
-      <Toolbar 
-        currentFormat={getSelectedCellFormat()}
-        disabled={!selectedCell}
-        onToggleBold={handleToggleBold}
-        onToggleItalic={handleToggleItalic}
-        onSetAlign={handleSetAlign}
-      />
+      <div className={styles.headerRow}>
+        <FilePicker
+          files={files}
+          selectedFile={selectedFile}
+          onSelectFile={handleSelectFile}
+          loading={filesLoading}
+        />
+        <Toolbar 
+          currentFormat={getSelectedCellFormat()}
+          disabled={!selectedCell}
+          onToggleBold={handleToggleBold}
+          onToggleItalic={handleToggleItalic}
+          onSetAlign={handleSetAlign}
+        />
+      </div>
       <div className={styles.gridContainer}>
-      <Grid
-          columns={data.columns}
-          rows={data.rows}
-          selectedCell={selectedCell}
-          selectedRange={selectedRange}
-          editingCell={editingCell}
-          cellMeta={cellMeta}
-          onCellSelect={handleCellSelect}
-          onCellMouseDown={handleCellMouseDown}
-          onCellMouseEnter={handleCellMouseEnter}
-          onStartEdit={handleStartEdit}
-          onFinishEdit={handleFinishEdit}
-          onCancelEdit={handleCancelEdit}
-      />
+        {renderGridContent()}
       </div>
     </div>
   )
