@@ -88,4 +88,4 @@ Virtualization keeps the DOM lightweight regardless of dataset size.
 
 ## Live Demo
 
-[Link to deployed application]
+https://spreadsheet.fbaltor.deno.net/
