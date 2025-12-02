@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 
 import Grid from './Grid'
+import VirtualizedGrid from './VirtualizedGrid'
 import Toolbar from './Toolbar'
 import FilePicker from './Filepicker'
 import type { FileInfo } from './Filepicker.tsx'
@@ -30,6 +31,9 @@ type CellMeta = {
   }
 }
 
+// Threshold for switching to virtualized grid
+const VIRTUALIZATION_THRESHOLD = 100
+
 const Spreadsheet: React.FC = () => {
   const [data, setData] = useState<NormalizedData | null>(null)
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null)
@@ -45,7 +49,6 @@ const Spreadsheet: React.FC = () => {
 
   const handleSelectFile = (filename: string) => {
     setSelectedFile(filename)
-    console.log('Selected file:', filename)
   }
 
 
@@ -263,21 +266,35 @@ const Spreadsheet: React.FC = () => {
       return <div className={styles.message}>Loading...</div>
     }
 
+    // Choose between regular Grid and VirtualizedGrid based on row count
+    const GridComponent = data.rows.length >= VIRTUALIZATION_THRESHOLD 
+      ? VirtualizedGrid 
+      : Grid
+
+    const useVirtualization = data.rows.length >= VIRTUALIZATION_THRESHOLD
+
     return (
-      <Grid
-        columns={data.columns}
-        rows={data.rows}
-        selectedCell={selectedCell}
-        selectedRange={selectedRange}
-        editingCell={editingCell}
-        cellMeta={cellMeta}
-        onCellSelect={handleCellSelect}
-        onCellMouseDown={handleCellMouseDown}
-        onCellMouseEnter={handleCellMouseEnter}
-        onStartEdit={handleStartEdit}
-        onFinishEdit={handleFinishEdit}
-        onCancelEdit={handleCancelEdit}
-      />
+      <>
+        {useVirtualization && (
+          <div className={styles.virtualizationNotice}>
+            Virtualized mode enabled ({data.rows.length} rows)
+          </div>
+        )}
+        <GridComponent
+          columns={data.columns}
+          rows={data.rows}
+          selectedCell={selectedCell}
+          selectedRange={selectedRange}
+          editingCell={editingCell}
+          cellMeta={cellMeta}
+          onCellSelect={handleCellSelect}
+          onCellMouseDown={handleCellMouseDown}
+          onCellMouseEnter={handleCellMouseEnter}
+          onStartEdit={handleStartEdit}
+          onFinishEdit={handleFinishEdit}
+          onCancelEdit={handleCancelEdit}
+        />
+      </>
     )
   }
 

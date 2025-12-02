@@ -16,3 +16,28 @@
   left: 0;
   z-index: 3;
 }
+
+/* Virtualized Grid Styles */
+.virtualContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.stickyHeader {
+  display: flex;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #ffffff;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.virtualScrollContainer {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
