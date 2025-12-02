@@ -1,73 +1,91 @@
-# React + TypeScript + Vite
+# React Spreadsheet Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A performant spreadsheet component built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Running
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Development mode (runs both frontend and API server):
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Terminal 1 - API server
+npm run serve
+
+# Terminal 2 - Frontend
+npm run dev
 ```
+
+Frontend runs on `http://localhost:3000`, API on `http://localhost:8000`.
+
+Production build:
+
+```bash
+npm run build
+npm run serve
+```
+
+## Implementation Approach
+
+### Architecture
+
+- **Frontend**: React 19 with TypeScript, Vite for bundling
+- **Backend**: Express server serving JSON data files from `api/data/`
+- **Styling**: CSS Modules for component-scoped styles
+
+### Core Features
+
+- Cell selection (click) and range selection (click-drag)
+- Inline cell editing (double-click to edit, Enter to confirm, Escape to cancel)
+- Text formatting: bold, italic, alignment
+- File picker to load different datasets
+
+### Performance
+
+The component switches between two rendering modes based on dataset size:
+
+- **Standard Grid** (`<100 rows`): CSS Grid layout, straightforward DOM rendering
+- **Virtualized Grid** (`>=100 rows`): Uses `@tanstack/react-virtual` to render only visible rows/columns
+
+Virtualization keeps the DOM lightweight regardless of dataset size.
+
+### Data Flow
+
+1. API returns data in `{ Values: { columns, items } }` format
+2. `normalizeApiData` transforms it to `{ columns, rows }` with explicit row indices
+3. Grid components receive normalized data and render cells
+
+## Design Decisions
+
+- **Threshold of 100 rows for virtualization**: Balances simplicity for small datasets with performance for larger ones
+- **CSS Modules over styled-components**: No runtime overhead, simpler debugging
+- **Separate Grid and VirtualizedGrid components**: Keeps each implementation focused; easier to maintain and test
+- **Cell metadata stored separately from cell values**: Formatting (bold, italic, align) lives in `cellMeta` state, keeping data and presentation concerns separate
+- **Row index column**: Included as a fixed reference, styled distinctly from data columns
+
+## Assumptions
+
+- Data is read-only from the server (edits are local-only, not persisted)
+- All columns have the same width (150px for data, 60px for row index)
+- Cell values are strings or numbers; no complex types
+- JSON files in `api/data/` follow the expected schema
+
+## Improvements With More Time
+
+- **Keyboard navigation**: Arrow keys to move selection, Tab to move between cells
+- **Column resizing**: Drag column borders to adjust width
+- **Sorting and filtering**: Click column headers to sort, add filter controls
+- **Undo/redo**: Track edit history
+- **Persist changes**: POST edits back to the server
+- **Copy/paste**: Support clipboard operations for cell ranges
+- **Column virtualization in header**: Currently header renders all columns; should virtualize for very wide datasets
+- **Tests**: Expand unit tests beyond `dataTransform`; add integration tests for Grid interactions
+- **Accessibility**: ARIA attributes, screen reader support, focus management
+
+## Live Demo
+
+[Link to deployed application]
